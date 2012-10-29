@@ -4,7 +4,7 @@ require 'mechanize'
 require 'nokogiri'
 require 'optparse'
 
-$options = {}
+$options = {:appid => "972",:username => "wuzhong"}
 OptionParser.new do |opts|
   opts.banner = "Usage: wdetail habo monitor [options]"
 
@@ -12,12 +12,30 @@ OptionParser.new do |opts|
     $options[:color] = true
   end
 
-  opts.on("-d", "use background mode") do |v|
+  opts.on("-d","use background mode") do |v|
     $options[:bg] = true
   end
+
+  opts.on("-u [name]","input your username") do |v|
+    $options[:username] = v
+  end
+
+  opts.on("-p [TYPE]","input your password") do |v|
+    $options[:password] = v
+  end
+
+  opts.on("--appid [TYPE]","input your appid") do |v|
+    $options[:appid] = v
+  end
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+
 end.parse!
 
-if ARGV.length != 2
+if  !($options[:username] && $options[:password])
   puts "add your username and password";
   exit;
 end
@@ -27,8 +45,8 @@ class Habo
     page = agent.get(url)
     login_form = page.form_with(:id => 'login-form')
     if login_form
-      login_form.id=ARGV[0]
-      login_form.pass_word=ARGV[1]
+      login_form.id=$options[:username]
+      login_form.pass_word=$options[:password]
       page = agent.submit(login_form, login_form.buttons.first)
     end
     return page
@@ -53,7 +71,7 @@ class HaboData
 
   def to_s
     str = "%14s %-4s %-6s %-6s" % [host, load, rt, qps]
-    ($options[:color] && (Float(load) > 4.0 || Float(rt) > 200)) ? red(str) : str
+    ($options[:color] && ( (load && Float(load) > 4.0) || (rt && Float(rt) > 200))) ? red(str) : str
   end
 
   def red(message)
@@ -63,8 +81,8 @@ class HaboData
 end
 
 
-$wdetail_monitor_url='http://monitor.taobao.com/monitorportal/main/pointInfo/performancePointList.htm?confId=972&moduleName=performance'
-$wdetail_monitor_load='http://monitor.taobao.com/monitorportal/main/pointInfo/devicePointList.htm?confId=972&moduleName=device'
+$wdetail_monitor_url='http://monitor.taobao.com/monitorportal/main/pointInfo/performancePointList.htm?confId='+$options[:appid]+'&moduleName=performance'
+$wdetail_monitor_load='http://monitor.taobao.com/monitorportal/main/pointInfo/devicePointList.htm?confId='+$options[:appid]+'&moduleName=device'
 $agent = Mechanize.new
 $error_times = 0;
 $_map = {}
@@ -86,6 +104,7 @@ def do_monitor
     end
     $error_times = 0;
   rescue
+    p $@
     $error_times +=1
     puts 'get rt exception'
   end
@@ -100,12 +119,14 @@ def do_monitor
       if $_map[key]
         $_map[key].load = Habo.getContent(tds[2])
       else
-        HaboData data = HaboData.new
+        data = HaboData.new
         data.host= key
         data.load = Habo.getContent(tds[2])
+        $_map[key] = data
       end
     end
   rescue
+    p $@
     $error_times +=1
     puts 'get load exception'
   end
