@@ -6,10 +6,6 @@
 require "nokogiri"
 require 'open-uri'
 
-#doc = Nokogiri::HTML(open('http://a.m.tmall.com/i10032396923.htm?v=1'))
-#doc.css('.promomtion-price').each do |price|
-#  puts price.content
-#end
 if ARGV.length == 0
   puts "lack of appName";
   exit;

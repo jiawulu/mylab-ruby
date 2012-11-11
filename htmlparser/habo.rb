@@ -3,31 +3,26 @@
 require 'mechanize'
 require 'nokogiri'
 require 'optparse'
+require 'yaml'
 
 $options = {:appid => "972",:username => "wuzhong"}
 OptionParser.new do |opts|
   opts.banner = "Usage: wdetail habo monitor [options]"
-
-  opts.on("-c", "use color mode") do |v|
-    $options[:color] = true
+  opts.on("-c", "use conky color mode") do |v|
+    $options[:conky] = true
   end
-
   opts.on("-d","use background mode") do |v|
     $options[:bg] = true
   end
-
-  opts.on("-u [name]","input your username") do |v|
+  opts.on("-u username","input your username") do |v|
     $options[:username] = v
   end
-
-  opts.on("-p [TYPE]","input your password") do |v|
+  opts.on("-p password","input your password") do |v|
     $options[:password] = v
   end
-
-  opts.on("--appid [TYPE]","input your appid") do |v|
+  opts.on("--appid appid","input your appid") do |v|
     $options[:appid] = v
   end
-
   opts.on_tail("-h", "--help", "Show this message") do
     puts opts
     exit
@@ -42,6 +37,7 @@ end
 
 class Habo
   def self.get(agent, url)
+    agent.cookie_jar.load('/tmp/habo_header') if File.exist?('/tmp/habo_header')
     page = agent.get(url)
     login_form = page.form_with(:id => 'login-form')
     if login_form
@@ -49,6 +45,7 @@ class Habo
       login_form.pass_word=$options[:password]
       page = agent.submit(login_form, login_form.buttons.first)
     end
+    agent.cookie_jar.save_as('/tmp/habo_header')
     return page
   end
 
@@ -71,12 +68,16 @@ class HaboData
 
   def to_s
     str = "%14s %-4s %-6s %-6s" % [host, load, rt, qps]
-    ($options[:color] && ( (load && Float(load) > 4.0) || (rt && Float(rt) > 200))) ? red(str) : str
+    ((load && Float(load) > 4.0) || (rt && Float(rt) > 200)) ? red(str) : str
   end
 
   def red(message)
-    color = '31;1'
-    return "\e[#{color}m#{message}\e[0m"
+    if $options[:conky]
+      return "red " + message
+    else
+      color = '31;1'
+      return "\e[#{color}m#{message}\e[0m"
+    end
   end
 end
 
@@ -132,6 +133,7 @@ def do_monitor
   end
 
   if $error_times == 0
+    puts ("%-17s %-4s %-6s %-6s" % ['host', 'load', 'rt', 'qps'])
     $_map.each_pair do |key, value|
       p value
     end
@@ -141,7 +143,6 @@ end
 
 if $options[:bg]
   while $error_times < 1000 do
-
     do_monitor
   # update time
     sleep 60
