@@ -2,11 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="30b0aa61-c319-45d8-9527-0b6e5ca3548f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/expect/scp_test" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/expect/config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/expect/hello.vm" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/taope_test.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/mylab-ruby.iml" afterPath="$PROJECT_DIR$/.idea/mylab-ruby.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="mylab-ruby.iws" />
@@ -588,7 +583,11 @@
       <created>1352772341694</created>
       <updated>1352772341694</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="add monitor">
+      <created>1352773696203</created>
+      <updated>1352773696203</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
