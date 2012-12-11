@@ -14,6 +14,10 @@ And then execute:
 
 Or install it yourself as:
 
+
+gem build taope.gemspec
+gem install taope-0.0.1.gem
+
     $ gem install taope
 
 ## Usage
